@@ -5,7 +5,7 @@ export const getPropertyValuation = async (details: PropertyDetails): Promise<Va
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
     console.error("API Key is missing. Ensure process.env.API_KEY is set.");
-    throw new Error("API Key is missing.");
+    throw new Error("API Key is missing. Please check your environment variables.");
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -22,6 +22,11 @@ export const getPropertyValuation = async (details: PropertyDetails): Promise<Va
     - Furnishing: ${details.furnishing}
     - Possession: ${details.possession}
 
+    OUTPUT INSTRUCTIONS:
+    Return strictly a valid JSON object matching the schema below. 
+    Ensure 'trends' is an array of objects with 'year' (string) and 'price' (number).
+    Ensure 'locationInsights' is an array of strings.
+    
     Provide a realistic market value range (Min and Max) in INR (Indian Rupees).
     Also provide historical price trends for this locality for the last 5 years.
     Give 3-4 bullet points of location insights specific to this pincode/locality (e.g., proximity to metro, schools, upcoming infra).
@@ -71,12 +76,31 @@ export const getPropertyValuation = async (details: PropertyDetails): Promise<Va
     });
 
     const text = response.text;
-    if (!text) throw new Error("No response generated from AI model");
-
-    // Clean potential markdown blocks if present (though responseMimeType usually handles this)
-    const jsonString = text.replace(/^```json\s*/, '').replace(/\s*```$/, '');
     
-    return JSON.parse(jsonString) as ValuationResult;
+    if (!text) {
+      console.error("Empty response from AI");
+      throw new Error("No response generated from AI model");
+    }
+
+    // Robust JSON Cleaning: Find the first '{' and the last '}'
+    // This handles cases where the AI includes markdown code blocks or preamble text
+    const startIndex = text.indexOf('{');
+    const endIndex = text.lastIndexOf('}');
+
+    if (startIndex === -1 || endIndex === -1) {
+      console.error("Invalid JSON format in response:", text);
+      throw new Error("Response is not a valid JSON object");
+    }
+
+    const jsonString = text.substring(startIndex, endIndex + 1);
+    
+    try {
+      return JSON.parse(jsonString) as ValuationResult;
+    } catch (parseError) {
+      console.error("JSON Parsing failed. Raw text:", text);
+      throw new Error("Failed to parse valuation data");
+    }
+
   } catch (error) {
     console.error("Valuation Service Error:", error);
     throw error;

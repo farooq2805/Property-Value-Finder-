@@ -48,8 +48,12 @@ function App() {
       console.error("Valuation Failed:", error);
       let errorMessage = "We encountered an issue analyzing the market data. Please try again.";
       
-      if (error.message && (error.message.includes("API Key") || error.message.includes("403"))) {
-         errorMessage = "Configuration Error: API Key is invalid or missing.";
+      if (error.message) {
+         if (error.message.includes("API Key") || error.message.includes("403")) {
+            errorMessage = "Configuration Error: API Key is invalid or missing.";
+         } else if (error.message.includes("candidate") || error.message.includes("JSON")) {
+            errorMessage = "The AI model could not generate a valid report for this specific location. Please try adding more details.";
+         }
       }
       
       alert(errorMessage);
