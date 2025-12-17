@@ -3,7 +3,7 @@ import { ValuationResult, PropertyDetails } from '../types';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
-import { ArrowLeft, TrendingUp, MapPin, Building, AlertCircle, Phone } from 'lucide-react';
+import { ArrowLeft, TrendingUp, MapPin, Building, Phone, Download } from 'lucide-react';
 
 interface Props {
   result: ValuationResult;
@@ -26,44 +26,57 @@ export const ResultView: React.FC<Props> = ({ result, inputData, onReset }) => {
       <div className="flex justify-between items-center mb-4">
         <button 
           onClick={onReset}
-          className="flex items-center text-gray-500 hover:text-brand-600 transition-colors font-medium"
+          className="flex items-center text-slate-600 hover:text-brand-600 transition-colors font-medium bg-white px-4 py-2 rounded shadow-sm border border-slate-200"
         >
           <ArrowLeft size={16} className="mr-2" />
-          Value Another Property
+          New Search
         </button>
+        <div className="text-xs text-slate-500 font-medium uppercase tracking-wide">
+           Report generated: {new Date().toLocaleDateString()}
+        </div>
       </div>
 
       {/* Main Valuation Card */}
-      <div className="bg-white rounded-lg shadow-2xl overflow-hidden border border-gray-100">
+      <div className="bg-white rounded-lg shadow-xl overflow-hidden border-t-4 border-brand-500">
         <div className="bg-brand-900 p-8 text-white relative">
           <div className="grid md:grid-cols-2 gap-8 items-center relative z-10">
             <div>
-              <p className="text-brand-500 font-bold mb-2 uppercase tracking-widest text-xs">Estimated Market Value</p>
-              <h1 className="text-4xl md:text-5xl font-serif font-bold mb-3 text-white">
+              <div className="flex items-center gap-2 mb-3">
+                 <div className="bg-brand-500/20 p-1 rounded">
+                   <MapPin size={16} className="text-brand-500" />
+                 </div>
+                 <span className="text-brand-100 font-bold uppercase tracking-widest text-xs">
+                   {inputData.locality}, {inputData.city} {inputData.pincode ? ` - ${inputData.pincode}` : ''}
+                 </span>
+              </div>
+              <h2 className="text-xs font-semibold text-brand-400 uppercase tracking-widest mb-1">Estimated Market Value</h2>
+              <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4 text-white">
                 {formatCurrency(result.minPrice)} - {formatCurrency(result.maxPrice)}
               </h1>
-              <p className="text-gray-400 text-sm">
-                Average Market Rate: <span className="text-white">₹{result.avgPricePerSqFt.toLocaleString()}/sq.ft</span> in {inputData.locality}
-              </p>
+              <div className="inline-block bg-white/10 rounded px-4 py-2 backdrop-blur-md border border-white/10">
+                <p className="text-brand-100 text-sm font-medium">
+                   Pincode Avg: <span className="text-white font-bold ml-1">₹{result.avgPricePerSqFt.toLocaleString()}/sq.ft</span>
+                </p>
+              </div>
             </div>
             
             <div className="flex flex-col gap-4">
-               <div className="bg-white/5 backdrop-blur-sm rounded-sm p-4 border border-white/10">
-                   <div className="flex justify-between items-center mb-2">
-                     <span className="text-gray-400 text-sm">Market Trend</span>
-                     <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide
-                       ${result.marketSentiment === 'Bullish' ? 'bg-green-900 text-green-300' : 
-                         result.marketSentiment === 'Bearish' ? 'bg-red-900 text-red-300' : 'bg-yellow-900 text-yellow-300'}`}>
+               <div className="bg-white/5 backdrop-blur-md rounded-lg p-6 border border-white/10 shadow-inner">
+                   <div className="flex justify-between items-center mb-4">
+                     <span className="text-brand-200 text-sm font-medium uppercase tracking-wide">Market Sentiment</span>
+                     <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm
+                       ${result.marketSentiment === 'Bullish' ? 'bg-green-500 text-white' : 
+                         result.marketSentiment === 'Bearish' ? 'bg-red-500 text-white' : 'bg-yellow-500 text-yellow-900'}`}>
                        {result.marketSentiment}
                      </span>
                    </div>
-                   <div className="flex justify-between items-center">
-                     <span className="text-gray-400 text-sm">Confidence Level</span>
-                     <div className="flex items-center gap-3">
-                        <div className="w-20 h-1.5 bg-gray-700 rounded-full">
-                          <div className="h-full bg-brand-500 rounded-full" style={{ width: `${result.confidenceScore}%` }}></div>
-                        </div>
+                   <div className="space-y-2">
+                     <div className="flex justify-between items-center">
+                        <span className="text-brand-200 text-xs uppercase tracking-wide">AI Confidence Score</span>
                         <span className="text-sm font-bold text-brand-500">{result.confidenceScore}%</span>
+                     </div>
+                     <div className="w-full h-2 bg-brand-950 rounded-full overflow-hidden border border-white/10">
+                        <div className="h-full bg-brand-500" style={{ width: `${result.confidenceScore}%` }}></div>
                      </div>
                    </div>
                </div>
@@ -71,36 +84,42 @@ export const ResultView: React.FC<Props> = ({ result, inputData, onReset }) => {
           </div>
         </div>
 
-        <div className="p-8">
+        <div className="p-8 bg-white">
           <div className="grid md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-6">
-              <h3 className="text-xl font-serif font-bold text-gray-900 flex items-center gap-2">
-                <TrendingUp className="text-brand-600" size={20} />
-                Price History ({inputData.locality})
-              </h3>
-              <div className="h-64 w-full border border-gray-100 rounded-lg p-4 bg-gray-50/50">
+              <div className="border-b border-slate-100 pb-4">
+                <h3 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
+                  <TrendingUp className="text-brand-600" size={20} />
+                  Price Appreciation Trend
+                </h3>
+                <p className="text-sm text-slate-500 mt-1">5-year historical performance for pincode {inputData.pincode}</p>
+              </div>
+              
+              <div className="h-72 w-full border border-slate-200 rounded-lg p-4 bg-slate-50">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={result.trends}>
                     <defs>
                       <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#b48a39" stopOpacity={0.1}/>
+                        <stop offset="5%" stopColor="#b48a39" stopOpacity={0.2}/>
                         <stop offset="95%" stopColor="#b48a39" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                    <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fill: '#6b7280', fontSize: 12}} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 500}} />
                     <YAxis hide={true} domain={['auto', 'auto']} />
                     <Tooltip 
-                      contentStyle={{ borderRadius: '4px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                      contentStyle={{ borderRadius: '6px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', backgroundColor: '#1e293b', color: '#fff' }}
+                      itemStyle={{ color: '#fff' }}
                       formatter={(value: number) => [`₹${value.toLocaleString()}`, 'Price/sq.ft']}
                     />
                     <Area 
                       type="monotone" 
                       dataKey="price" 
                       stroke="#b48a39" 
-                      strokeWidth={2}
+                      strokeWidth={3}
                       fillOpacity={1} 
                       fill="url(#colorPrice)" 
+                      activeDot={{ r: 6, fill: '#b48a39', stroke: '#fff', strokeWidth: 2 }}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -108,22 +127,27 @@ export const ResultView: React.FC<Props> = ({ result, inputData, onReset }) => {
             </div>
 
             <div className="space-y-6">
-              <h3 className="text-xl font-serif font-bold text-gray-900 flex items-center gap-2">
-                <MapPin className="text-brand-600" size={20} />
-                Locality Highlights
-              </h3>
+              <div className="border-b border-slate-100 pb-4">
+                <h3 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
+                  <MapPin className="text-brand-600" size={20} />
+                  Locality Insights
+                </h3>
+              </div>
               <ul className="space-y-3">
                 {result.locationInsights.map((insight, idx) => (
-                  <li key={idx} className="flex gap-3 text-sm text-gray-700 bg-gray-50 p-3 rounded border-l-2 border-brand-500">
+                  <li key={idx} className="flex gap-3 text-sm text-slate-700 bg-slate-50 p-4 rounded border-l-4 border-brand-500 shadow-sm">
                     {insight}
                   </li>
                 ))}
               </ul>
               
-              <div className="mt-8 bg-brand-900 text-white p-5 rounded-lg text-center">
-                <p className="text-sm text-gray-300 mb-3">Want a more precise valuation?</p>
-                <button className="w-full bg-brand-500 text-brand-900 font-bold py-3 rounded-sm hover:bg-white transition-colors uppercase text-xs tracking-wider flex items-center justify-center gap-2">
-                  <Phone size={14} /> Contact Ravi Kewalramani
+              <div className="mt-8 bg-slate-800 text-white p-6 rounded-lg text-center shadow-lg border-t-4 border-brand-500">
+                <p className="text-brand-100 text-sm mb-4 font-medium uppercase tracking-wide">Professional Assistance</p>
+                <button className="w-full bg-brand-500 text-white font-bold py-3 rounded hover:bg-brand-600 transition-colors uppercase text-xs tracking-wider flex items-center justify-center gap-2 mb-3 shadow-md">
+                  <Phone size={14} /> Speak to Expert
+                </button>
+                <button className="w-full border border-slate-600 text-slate-300 font-bold py-3 rounded hover:bg-slate-700 hover:text-white transition-colors uppercase text-xs tracking-wider flex items-center justify-center gap-2">
+                  <Download size={14} /> Download PDF
                 </button>
               </div>
             </div>
@@ -132,37 +156,29 @@ export const ResultView: React.FC<Props> = ({ result, inputData, onReset }) => {
       </div>
 
       {/* Property Summary Strip */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-wrap gap-6 md:justify-between items-center text-sm text-gray-500">
+      <div className="bg-white rounded-lg shadow-md border-l-4 border-brand-600 p-6 flex flex-wrap gap-6 md:justify-between items-center text-sm text-slate-500">
          <div className="flex items-center gap-2">
             <Building size={16} className="text-brand-600" />
-            <span className="font-semibold text-gray-900">{inputData.propertyType}</span>
+            <span className="font-bold text-slate-800 uppercase tracking-wide">{inputData.propertyType}</span>
          </div>
-         <div className="w-px h-4 bg-gray-300 hidden md:block"></div>
+         <div className="w-px h-6 bg-slate-200 hidden md:block"></div>
          <div>
-            <span className="block text-xs uppercase tracking-wide">Size</span>
-            <span className="font-semibold text-gray-900">{inputData.area} sq ft</span>
+            <span className="block text-xs uppercase tracking-wide font-medium text-slate-400">Size</span>
+            <span className="font-bold text-slate-800">{inputData.area} sq ft</span>
          </div>
-         <div className="w-px h-4 bg-gray-300 hidden md:block"></div>
+         <div className="w-px h-6 bg-slate-200 hidden md:block"></div>
          <div>
-            <span className="block text-xs uppercase tracking-wide">Details</span>
-            <span className="font-semibold text-gray-900">
+            <span className="block text-xs uppercase tracking-wide font-medium text-slate-400">Details</span>
+            <span className="font-bold text-slate-800">
               {inputData.bhk ? `${inputData.bhk} BHK` : 'Plot'} 
               {inputData.floor ? `, Floor ${inputData.floor}` : ''}
             </span>
          </div>
-         <div className="w-px h-4 bg-gray-300 hidden md:block"></div>
+         <div className="w-px h-6 bg-slate-200 hidden md:block"></div>
          <div>
-            <span className="block text-xs uppercase tracking-wide">Location</span>
-            <span className="font-semibold text-gray-900">{inputData.locality}, {inputData.city}</span>
+            <span className="block text-xs uppercase tracking-wide font-medium text-slate-400">Location</span>
+            <span className="font-bold text-slate-800">{inputData.locality}, {inputData.city}</span>
          </div>
-      </div>
-
-      <div className="flex items-start gap-3 p-4 bg-gray-50 text-gray-600 rounded-lg text-xs">
-        <AlertCircle size={16} className="shrink-0 mt-0.5" />
-        <p>
-          <strong>Disclaimer:</strong> This automated valuation is an estimate based on current market trends and available data. 
-          It does not constitute a legal valuation. For an official valuation report or to list your property, please contact our office directly.
-        </p>
       </div>
     </div>
   );

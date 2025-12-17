@@ -2,8 +2,9 @@ import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { PropertyDetails, ValuationResult } from '../types';
 
 export const getPropertyValuation = async (details: PropertyDetails): Promise<ValuationResult> => {
-  const apiKey = process.env.API_KEY || 'FAKE_API_KEY_FOR_DEVELOPMENT';
+  const apiKey = process.env.API_KEY;
   if (!apiKey) {
+    console.error("API Key is missing. Ensure process.env.API_KEY is set.");
     throw new Error("API Key is missing.");
   }
 
@@ -36,7 +37,7 @@ export const getPropertyValuation = async (details: PropertyDetails): Promise<Va
     properties: {
       minPrice: { type: Type.NUMBER, description: "Minimum estimated price in INR" },
       maxPrice: { type: Type.NUMBER, description: "Maximum estimated price in INR" },
-      currency: { type: Type.STRING, description: "Currency symbol, usually Ã¢ÂÂ¹ or INR" },
+      currency: { type: Type.STRING, description: "Currency symbol, usually ₹ or INR" },
       avgPricePerSqFt: { type: Type.NUMBER, description: "Average price per square foot in INR" },
       trends: {
         type: Type.ARRAY,
@@ -70,9 +71,12 @@ export const getPropertyValuation = async (details: PropertyDetails): Promise<Va
     });
 
     const text = response.text;
-    if (!text) throw new Error("No response generated");
+    if (!text) throw new Error("No response generated from AI model");
 
-    return JSON.parse(text) as ValuationResult;
+    // Clean potential markdown blocks if present (though responseMimeType usually handles this)
+    const jsonString = text.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    
+    return JSON.parse(jsonString) as ValuationResult;
   } catch (error) {
     console.error("Valuation Service Error:", error);
     throw error;

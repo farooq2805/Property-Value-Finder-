@@ -1,7 +1,7 @@
 import React from 'react';
 import { PropertyDetails } from '../../types';
 import { CITIES } from '../../constants';
-import { MapPin } from 'lucide-react';
+import { MapPin, Navigation } from 'lucide-react';
 
 interface Props {
   data: Partial<PropertyDetails>;
@@ -13,19 +13,18 @@ export const LocationStep: React.FC<Props> = ({ data, updateData, onNext }) => {
   const isValid = data.city && data.locality && data.pincode && data.pincode.length === 6;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-in">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800">Where is your property located?</h2>
-        <p className="text-gray-500">Location is the most important factor in valuation.</p>
+        <h3 className="text-xl font-serif font-bold text-brand-950 border-b-2 border-brand-500/20 inline-block pb-2">Property Location</h3>
       </div>
 
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="md:col-span-2">
+          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">City</label>
           <select
             value={data.city || ''}
             onChange={(e) => updateData({ city: e.target.value })}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all"
+            className="w-full px-4 py-3.5 rounded-sm border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all bg-slate-50 hover:bg-white text-slate-800 font-medium"
           >
             <option value="" disabled>Select City</option>
             {CITIES.map(city => (
@@ -34,44 +33,47 @@ export const LocationStep: React.FC<Props> = ({ data, updateData, onNext }) => {
           </select>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Locality / Area</label>
-          <div className="relative">
+        <div className="md:col-span-1">
+          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Locality / Project</label>
+          <div className="relative group">
             <input
               type="text"
               value={data.locality || ''}
               onChange={(e) => updateData({ locality: e.target.value })}
-              placeholder="e.g. Andheri West, Koramangala"
-              className="w-full px-4 py-3 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all"
+              placeholder="e.g. Bandra West"
+              className="w-full px-4 py-3.5 pl-11 rounded-sm border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all bg-slate-50 hover:bg-white group-hover:border-gray-300 text-slate-800 font-medium"
             />
-            <MapPin className="absolute left-3 top-3.5 text-gray-400" size={20} />
+            <MapPin className="absolute left-3.5 top-3.5 text-gray-400 group-focus-within:text-brand-500 transition-colors" size={20} />
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
-          <input
-            type="text"
-            maxLength={6}
-            value={data.pincode || ''}
-            onChange={(e) => {
-              const val = e.target.value.replace(/\D/g, '');
-              updateData({ pincode: val });
-            }}
-            placeholder="e.g. 400053"
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all"
-          />
+        <div className="md:col-span-1">
+          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Pincode</label>
+          <div className="relative group">
+             <input
+              type="text"
+              maxLength={6}
+              value={data.pincode || ''}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '');
+                updateData({ pincode: val });
+              }}
+              placeholder="e.g. 400050"
+              className="w-full px-4 py-3.5 pl-11 rounded-sm border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all bg-slate-50 hover:bg-white group-hover:border-gray-300 text-slate-800 font-medium"
+            />
+            <Navigation className="absolute left-3.5 top-3.5 text-gray-400 group-focus-within:text-brand-500 transition-colors" size={20} />
+          </div>
         </div>
       </div>
 
-      <div className="pt-6">
+      <div className="pt-8">
         <button
           onClick={onNext}
           disabled={!isValid}
-          className={`w-full py-4 rounded-xl font-semibold text-lg transition-all shadow-lg
+          className={`w-full py-4 rounded-sm font-bold text-sm uppercase tracking-widest transition-all shadow-lg
             ${isValid 
-              ? 'bg-brand-600 text-white hover:bg-brand-700 hover:shadow-brand-500/30' 
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+              ? 'bg-brand-600 text-white hover:bg-brand-700 hover:shadow-xl transform hover:-translate-y-0.5' 
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
         >
           Next Step
         </button>

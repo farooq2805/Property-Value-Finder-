@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { PropertyDetails, LeadDetails, PropertyType, FurnishingStatus, PossessionStatus } from '../types';
 import { LocationStep } from './steps/LocationStep';
 import { PropertyStep } from './steps/PropertyStep';
@@ -9,11 +9,12 @@ import { Check } from 'lucide-react';
 interface StepWizardProps {
   onComplete: (data: PropertyDetails, lead: LeadDetails) => void;
   isLoading: boolean;
+  initialData?: Partial<PropertyDetails> | null;
 }
 
-const STEPS = ['Location', 'Property Details', 'Features', 'Get Report'];
+const STEPS = ['Location', 'Details', 'Features', 'Get Report'];
 
-export const StepWizard: React.FC<StepWizardProps> = ({ onComplete, isLoading }) => {
+export const StepWizard: React.FC<StepWizardProps> = ({ onComplete, isLoading, initialData }) => {
   const [currentStep, setCurrentStep] = useState(0);
   
   const [propertyData, setPropertyData] = useState<Partial<PropertyDetails>>({
@@ -26,6 +27,15 @@ export const StepWizard: React.FC<StepWizardProps> = ({ onComplete, isLoading })
   });
 
   const [leadData, setLeadData] = useState<Partial<LeadDetails>>({});
+
+  useEffect(() => {
+    if (initialData) {
+      setPropertyData(prev => ({ ...prev, ...initialData }));
+      if (initialData.city && initialData.locality) {
+        setCurrentStep(1);
+      }
+    }
+  }, [initialData]);
 
   const handleNext = () => {
     if (currentStep < STEPS.length - 1) {
@@ -69,30 +79,34 @@ export const StepWizard: React.FC<StepWizardProps> = ({ onComplete, isLoading })
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden border border-gray-100">
+    <div className="w-full max-w-3xl mx-auto bg-white rounded-none md:rounded-lg shadow-2xl overflow-hidden border-t-4 border-brand-500">
       {/* Progress Header */}
-      <div className="bg-brand-900 px-6 py-4 border-b border-brand-800">
-        <div className="flex items-center justify-between">
-          {STEPS.map((step, index) => (
-            <div key={index} className="flex items-center">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold 
-                ${index <= currentStep ? 'bg-brand-500 text-brand-900' : 'bg-brand-800 text-brand-400'}`}>
-                {index < currentStep ? <Check size={14} /> : index + 1}
+      <div className="bg-white px-8 py-6 border-b border-gray-100">
+        <div className="flex items-center justify-between relative">
+           {/* Connecting Line */}
+           <div className="absolute left-0 top-1/2 w-full h-0.5 bg-gray-100 -z-10 transform -translate-y-1/2 mx-4"></div>
+           
+           {STEPS.map((step, index) => (
+            <div key={index} className="flex flex-col items-center relative bg-white px-2">
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-bold transition-all duration-300 border-2
+                ${index < currentStep 
+                  ? 'bg-brand-500 border-brand-500 text-white' 
+                  : index === currentStep
+                    ? 'bg-white border-brand-500 text-brand-500 shadow-gold'
+                    : 'bg-white border-gray-200 text-gray-300'}`}>
+                {index < currentStep ? <Check size={18} /> : index + 1}
               </div>
-              <span className={`ml-2 text-xs font-medium uppercase tracking-wider hidden sm:block 
-                ${index <= currentStep ? 'text-white' : 'text-brand-700'}`}>
+              <span className={`mt-2 text-[10px] font-bold uppercase tracking-widest transition-colors
+                ${index <= currentStep ? 'text-brand-900' : 'text-gray-300'}`}>
                 {step}
               </span>
-              {index < STEPS.length - 1 && (
-                <div className={`w-8 h-px mx-2 hidden sm:block ${index < currentStep ? 'bg-brand-500' : 'bg-brand-800'}`} />
-              )}
             </div>
           ))}
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-8 min-h-[450px]">
+      <div className="p-6 md:p-10 min-h-[400px]">
         {renderStep()}
       </div>
     </div>
