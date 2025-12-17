@@ -2,7 +2,7 @@ import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { PropertyDetails, ValuationResult } from '../types';
 
 export const getPropertyValuation = async (details: PropertyDetails): Promise<ValuationResult> => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = process.env.API_KEY || 'FAKE_API_KEY_FOR_DEVELOPMENT';
   if (!apiKey) {
     throw new Error("API Key is missing.");
   }
@@ -36,7 +36,7 @@ export const getPropertyValuation = async (details: PropertyDetails): Promise<Va
     properties: {
       minPrice: { type: Type.NUMBER, description: "Minimum estimated price in INR" },
       maxPrice: { type: Type.NUMBER, description: "Maximum estimated price in INR" },
-      currency: { type: Type.STRING, description: "Currency symbol, usually ₹ or INR" },
+      currency: { type: Type.STRING, description: "Currency symbol, usually â¹ or INR" },
       avgPricePerSqFt: { type: Type.NUMBER, description: "Average price per square foot in INR" },
       trends: {
         type: Type.ARRAY,
