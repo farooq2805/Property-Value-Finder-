@@ -1,0 +1,7 @@
+{
+  "name": "Ravi Kewalramani - Property Valuation",
+  "description": "Premium property valuation tool. Get instant, accurate property estimates based on detailed market parameters.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
